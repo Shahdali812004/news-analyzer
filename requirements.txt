@@ -1,0 +1,9 @@
+# python == 3.13.11
+json-repair == 0.29.1
+openai == 1.61.0
+fastapi == 0.115.0
+uvicorn == 0.38.0
+pydantic == 2.12.4
+vllm == 0.22.0
+pip == 25.3
+torch == 2.10.0

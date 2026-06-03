@@ -1,0 +1,35 @@
+news-analyzer-llm/
+│
+├── app/
+│   ├── api/
+│   │   ├── main.py
+│   │   ├── routes.py
+│   │   ├── schemas.py
+│   │   └── inference.py
+│   │
+│   ├── frontend/
+│   │   └── streamlit_app.py
+│   │
+│   └── utils/
+│       ├── prompts.py
+│       └── postprocessing.py
+│
+├── training/
+    |──dataformater/
+       |──SFT.py
+│   ├── train_lora.yaml
+│   ├── dataset_info.json
+│   ├── preprocessing.py
+│   └── notebooks/
+│
+├── deployment/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── start_vllm.sh
+│
+├── models/
+│   └── lora_adapter/
+│
+├── requirements.txt
+├── README.md
+└── .env
