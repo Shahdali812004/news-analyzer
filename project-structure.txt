@@ -33,3 +33,10 @@ news-analyzer-llm/
 ├── requirements.txt
 ├── README.md
 └── .env
+
+chmod +x run_vllm.sh
+./run_vllm.sh
+
+uvicorn main:app --reload --port 7000
+streamlit run app/frontend/streamlit_app.py
+streamlit run app/frontend/streamlit_app.py

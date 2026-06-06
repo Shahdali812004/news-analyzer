@@ -29,12 +29,21 @@ class PipelineBuilder:
                 "# Task:",
                 "Extract the story details into a JSON.",
                 "",
+                "IMPORTANT:",
+                "- Return ONLY a valid JSON object.",
+                "- Follow the provided schema exactly.",
+                "- Do not add extra fields.",
+                "- Do not omit required fields.",
+                "- Do not include markdown.",
+                "- Do not include Chinese, Japanese, Korean, or other foreign characters.",
+                "- Do not include explanations before or after the JSON.",
+                "- Do not include line breaks inside string values.",
+                "",
                 "# Output Scheme:",
                 json.dumps(
                     NewsDetails.model_json_schema(), ensure_ascii=False
                 ),
                 "",
-
                 "# Output JSON:",
                 "```json"
             ])
@@ -54,6 +63,16 @@ class PipelineBuilder:
                 "",
                 "# Task:",
                 f"You have to translate the story content into {target_lang} associated with a title into a JSON.",
+                "",
+                "IMPORTANT:",
+                "- Return ONLY a valid JSON object.",
+                "- Follow the provided schema exactly.",
+                "- Do not add extra fields.",
+                "- Do not omit required fields.",
+                "- Do not include markdown.",
+                "- Do not include Chinese, Japanese, Korean, or other foreign characters.",
+                "- Do not include explanations before or after the JSON.",
+                "- Do not include line breaks inside string values.",
                 "",
                 "# Output Scheme:", 
                 json.dumps(

@@ -21,6 +21,8 @@ async def health_check():
 async def extract_details(request: ExtractionRequest):
     response = pipeline.extract_news_details(story=request.story
                          ,temperature=request.temperature,max_tokens=request.max_tokens)
+    print("LLM RAW RESPONSE KEYS:", response.keys())  # <-- add this
+    print("LLM RAW RESPONSE:", response)
     if not isinstance(response, ValueError):
         return NewsDetails(**response)
     else:
