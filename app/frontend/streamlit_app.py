@@ -1,14 +1,48 @@
 import json
 import time
 import requests
+import os
+import sys
 import streamlit as st
+from transformers import AutoTokenizer
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../..")
+)
 
-API_URL = "http://localhost:7000"
+sys.path.insert(0, PROJECT_ROOT)
+from app.frontend.api_helper import (
+    check_health,
+    extract_details,
+    translate_story
+)
+from app.helper.config import BASE_MODEL_ID
+from app.api.inference import PipelineBuilder
+#====================================================
+#load tokenizer once
+#=========`===========================================
+@st.cache_resource
+def load_tokenizer():
+    return AutoTokenizer.from_pretrained(
+        BASE_MODEL_ID
+    )
 
+tokenizer = load_tokenizer()
+
+def count_tokens(text):
+    pipeline = PipelineBuilder()
+    message = pipeline.build_news_extraction_message(text)
+    t = tokenizer.apply_chat_template(
+        message,
+        tokenize = True,
+        add_generation_prompt=True
+    )
+    return len(
+        t['input_ids']
+    )
 # =====================================================
 # PAGE CONFIG
 # =====================================================
-
+pipeline = PipelineBuilder()
 st.set_page_config(
     page_title="Arabic News Analyzer",
     page_icon="📰",
@@ -54,59 +88,9 @@ if "total_requests" not in st.session_state:
 if "total_latency" not in st.session_state:
     st.session_state.total_latency = 0
 
-# =====================================================
-# API HELPERS
-# =====================================================
+#====================================================
 
-def check_health():
-
-    response = requests.get(
-        f"{API_URL}/health",
-        timeout=10
-    )
-
-    response.raise_for_status()
-
-    return response.json()
-
-
-def extract_details(story, temperature, max_tokens):
-
-    payload = {
-        "story": story,
-        "temperature": temperature,
-        "max_tokens": max_tokens
-    }
-
-    response = requests.post(
-        f"{API_URL}/extract-details",
-        json=payload,
-        timeout=120
-    )
-
-    response.raise_for_status()
-
-    return response.json()
-
-
-def translate_story(story, target_lang, temperature, max_tokens):
-
-    payload = {
-        "story": story,
-        "target_lang": target_lang,
-        "temperature": temperature,
-        "max_tokens": max_tokens
-    }
-
-    response = requests.post(
-        f"{API_URL}/translate-story",
-        json=payload,
-        timeout=120
-    )
-
-    response.raise_for_status()
-
-    return response.json()
+#=====================================================
 
 # =====================================================
 # SIDEBAR
@@ -145,7 +129,7 @@ with st.sidebar:
     max_tokens = st.slider(
         "Max Tokens",
         min_value=100,
-        max_value=3000,
+        max_value=2000,
         value=1000,
         step=100
     )
@@ -236,6 +220,29 @@ with tab1:
             st.warning(
                 "Please enter a story."
             )
+            st.stop()
+        story_tokens = count_tokens(story)
+        # print(f"Story Tokens: {story_tokens}")
+        total_tokens = (story_tokens + max_tokens)
+        # print(f"Total Tokens (Story + Max Output): {total_tokens}")
+        if total_tokens >= 4000:
+
+            st.warning(
+                f"""
+                Token limit exceeded.
+
+                Story Tokens: {story_tokens}
+
+                Max Output Tokens: {max_tokens}
+
+                Total: {total_tokens}
+
+                Model Limit: 4000
+                """
+                )
+
+            st.stop()
+
 
         else:
 
@@ -385,11 +392,30 @@ with tab2:
             st.warning(
                 "Please enter a story."
             )
-
+            st.stop()
         else:
 
             try:
+                story_tokens = count_tokens(story_translation)
 
+                total_tokens = (story_tokens + max_tokens)
+                if total_tokens > 4000:
+
+                    st.warning(
+                        f"""
+                        Token limit exceeded.
+
+                        Story Tokens: {story_tokens}
+
+                        Max Output Tokens: {max_tokens}
+
+                        Total: {total_tokens}
+
+                        Model Limit: 4000
+                        """
+                    )
+
+                    st.stop()
                 start = time.time()
 
                 result = translate_story(
